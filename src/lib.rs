@@ -1,3 +1,5 @@
+#![cfg(feature = "python")]
+
 mod loader;
 
 use pyo3::prelude::*;
