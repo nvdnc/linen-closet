@@ -34,7 +34,6 @@ jobs:
         with:
           target: ${{ matrix.target }}
           args: --release --out dist --find-interpreter
-#          sccache: 'true'
           manylinux: 2_24
       - name: Upload wheels
         uses: actions/upload-artifact@v3
@@ -103,7 +102,7 @@ jobs:
           path: dist
 
   release:
-    name: Release
+    name: Release to PyPI
     runs-on: ubuntu-latest
     if: "startsWith(github.ref, 'refs/tags/')"
     needs: [linux, windows, macos, sdist]
@@ -118,3 +117,27 @@ jobs:
         with:
           command: upload
           args: --non-interactive --skip-existing *
+
+  release-cli:
+    name: Release CLI ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    if: "startsWith(github.ref, 'refs/tags/')"
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-pc-windows-gnu
+            archive: zip
+          - target: x86_64-unknown-linux-musl
+            archive: tar.gz tar.xz tar.zst
+          - target: x86_64-apple-darwin
+            archive: zip
+    steps:
+      - uses: actions/checkout@master
+      - name: Compile and release
+        uses: rust-build/rust-build.action@v1.4.4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          RUSTTARGET: ${{ matrix.target }}
+          ARCHIVE_TYPES: ${{ matrix.archive }}
