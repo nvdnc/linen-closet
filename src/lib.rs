@@ -32,11 +32,48 @@ fn load_sheets(
 #[pyclass]
 #[pyo3(name="S3Configuration")]
 pub struct S3Configuration {
+    #[pyo3(get, set)]
     pub url: String,
+    #[pyo3(get, set)]
     pub key: String,
+    #[pyo3(get, set)]
     pub secret: String,
+    #[pyo3(get, set)]
     pub bucket_name: String,
+    #[pyo3(get, set)]
     pub region: String,
+}
+
+
+#[pymethods]
+impl S3Configuration {
+    #[new]
+    fn new(
+        url: String,
+        key: String,
+        secret: String,
+        bucket_name: String,
+        region: String,
+    ) -> Self {
+        Self {
+            url,
+            key,
+            secret,
+            bucket_name,
+            region,
+        }
+    }
+
+    fn __repr__(slf: &PyCell<Self>) -> PyResult<String> {
+        Ok(format!(
+            "S3Configuration(url={}, key={}, secret={}, bucket_name={}, region={})",
+            slf.borrow().url,
+            slf.borrow().key,
+            slf.borrow().secret,
+            slf.borrow().bucket_name,
+            slf.borrow().region,
+        ))
+    }
 }
 
 #[pymodule]

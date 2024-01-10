@@ -95,7 +95,7 @@ pub async fn get_sheet_via_export(drive_hub: &DriveHub<HttpsConnector<HttpConnec
         if let Some(existing_last_modified) = existing_workbook_last_modified {
             if current_last_modified <= existing_last_modified {
                 let duration: std::time::Duration = (Utc::now() - current_last_modified).to_std().context("error converting to std::time::Duration")?;
-                println!("Skipping {} -- no changes since {}", workbook_id, HumanTime::from(duration).to_text_en(Accuracy::Rough, Tense::Past).to_string());
+                println!("Skipping {} -- no changes since {}", workbook_id, HumanTime::from(duration).to_text_en(Accuracy::Rough, Tense::Past));
                 return Ok(None);
             }
         }

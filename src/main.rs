@@ -34,9 +34,9 @@ async fn main() -> Result<()> {
 
     let args = Args::parse();
 
-    let credentials_file_path = std::env::var("GOOGLE_APPLICATION_CREDENTIALS").unwrap_or_else(|_| args.credentials_file_path);
+    let credentials_file_path = std::env::var("GOOGLE_APPLICATION_CREDENTIALS").unwrap_or(args.credentials_file_path);
 
-    let output_filename = std::env::var("OUTPUT_FILENAME").unwrap_or_else(|_| args.output_filename);
+    let output_filename = std::env::var("OUTPUT_FILENAME").unwrap_or(args.output_filename);
     let output_filename = if output_filename.starts_with("s3://") {
         WorkbookArchiveFile::Remote(output_filename.replace("s3://", ""))
     } else {
@@ -48,7 +48,7 @@ async fn main() -> Result<()> {
         Err(_) => args.max_download_concurrency,
     };
 
-    let sheet_configuration = std::env::var("SHEET_CONFIGURATION").unwrap_or_else(|_| args.sheet_configuration);
+    let sheet_configuration = std::env::var("SHEET_CONFIGURATION").unwrap_or(args.sheet_configuration);
 
     let existing_file: Option<WorkbookArchiveFile> = match std::env::var("EXISTING_FILE") {
         Ok(existing_file) => Some(existing_file),
