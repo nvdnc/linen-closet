@@ -28,8 +28,9 @@ fn load_sheets(
     ).map_err(|err| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(err.to_string()))
 }
 
-#[pyclass]
 #[derive(Clone)]
+#[pyclass]
+#[pyo3(name="S3Configuration")]
 pub struct S3Configuration {
     pub url: String,
     pub key: String,
@@ -42,5 +43,6 @@ pub struct S3Configuration {
 #[pyo3(name="linen_closet")]
 fn b(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(load_sheets, m)?)?;
+    m.add_class::<S3Configuration>()?;
     Ok(())
 }

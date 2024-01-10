@@ -13,7 +13,7 @@ pip install linen-closet
 ### Python Package
 
 ```python
-from linen_closet.linen_closet import load_sheets
+from linen_closet import load_sheets, S3Configuration
 
 load_sheets(
     credentials_file: str = "credentials.json",  # Likely a Google Service Account Credentials file in JSON format
