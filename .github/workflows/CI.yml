@@ -35,7 +35,7 @@ jobs:
           target: ${{ matrix.target }}
           args: --release --out dist --find-interpreter
           sccache: 'true'
-          manylinux: ${{ matrix.architecture == 'aarch64' && '2_24' || 'auto' }}
+          manylinux: 2_24
       - name: Upload wheels
         uses: actions/upload-artifact@v3
         with:
