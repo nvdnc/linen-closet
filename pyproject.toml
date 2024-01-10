@@ -18,10 +18,11 @@ features = ["pyo3/extension-module"]
 [tool.poetry]
 name = "linen_closet"
 version = "0.1.0"
-description = ""
-authors = []
+description = "A Google Sheets bulk download and caching library."
+authors = [
+    "Isaac Parker <isaac@linux.com>"
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-django = "^4.2.6"
-maturin = "^1.3.0"
+maturin = { version = "^1.3.0", extras = ["patchelf"] }
