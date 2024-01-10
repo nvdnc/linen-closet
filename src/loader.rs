@@ -111,7 +111,7 @@ pub async fn get_sheet_via_export(drive_hub: &DriveHub<HttpsConnector<HttpConnec
     let sheets = sheet_names.iter().map(|sheet_name| {
         let s = workbook.worksheet_range(sheet_name).ok_or_else(|| Error::msg("no sheet"))??;
         let rows = s.rows().enumerate().map(|(_row_index, row)| {
-            row.iter().enumerate().map(|(cell_index, cell)| match cell {
+            row.iter().enumerate().map(|(_cell_index, cell)| match cell {
                 DataType::DateTimeIso(dt) => {
                     dt.to_string()
                 },
