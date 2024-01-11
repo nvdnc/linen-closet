@@ -41,6 +41,35 @@ jobs:
           name: wheels
           path: dist
 
+  linux-musl:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [
+          { target: "x86_64-unknown-linux-musl", image_tag: "x86_64-musl" },
+          { target: "aarch64-unknown-linux-musl", image_tag: "aarch64-musl" },
+          { target: "armv7-unknown-linux-musleabihf", image_tag: "armv7-musleabihf" },
+        ]
+    container:
+      image: docker://messense/rust-musl-cross:${{ matrix.platform.image_tag }}
+      env:
+        CFLAGS_armv7_unknown_linux_musleabihf: '-mfpu=vfpv3-d16'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build Wheels - musllinux
+        uses: PyO3/maturin-action@main
+        if: ${{ contains(matrix.platform.target, 'musl') }}
+        with:
+          target: ${{ matrix.platform.target }}
+          manylinux: musllinux_1_1
+          container: off
+          args: --release -o dist -i python3.10
+      - name: Upload wheels
+        uses: actions/upload-artifact@v3
+        with:
+          name: wheels
+          path: dist
+
   windows:
     runs-on: windows-latest
     strategy:
