@@ -51,26 +51,74 @@ impl Workbook {
 }
 
 async fn list_all_sheets_in_folder(hub: &DriveHub<HttpsConnector<HttpConnector>>, drive_folder_id: &str) -> Result<Vec<(String, String)>> {
-    let items = hub
-        .files()
-        .list()
-        .q(&format!("'{}' in parents", drive_folder_id))
-        .supports_all_drives(true)
-        .include_items_from_all_drives(true)
-        .page_size(1000)
-        .doit()
-        .await;
 
+    let mut next_page_token: Option<String>= None;
+    let mut sheet_ids = vec![];
 
-    let (_, files) = items?;
-    let f = files.files.ok_or(Error::msg("no files found"))?;
-    let sheet_ids = f.into_iter().filter_map(|file| {
-        if file.mime_type == Some("application/vnd.google-apps.spreadsheet".to_string()) {
-            Some((file.id.unwrap(), file.name.unwrap()))
+    loop {
+        if let Some(page_token) = next_page_token {
+            let (_, file_listing) = hub
+                .files()
+                .list()
+                .q(&format!("'{}' in parents", drive_folder_id))
+                .supports_all_drives(true)
+                .include_items_from_all_drives(true)
+                .page_size(1000)
+                .page_token(page_token.as_str())
+                .doit()
+                .await?;
+            
+            let resp_next_page_token = file_listing.next_page_token;
+            if let Some(tok) = resp_next_page_token {
+                next_page_token = Some(tok);
+            } else {
+                next_page_token = None;
+            }
+
+            let f = file_listing.files.ok_or(Error::msg("no files found"))?;
+            let current_sheet_ids = f.into_iter().filter_map(|file| {
+                if file.mime_type == Some("application/vnd.google-apps.spreadsheet".to_string()) {
+                    Some((file.id.unwrap(), file.name.unwrap()))
+                } else {
+                    None
+                }
+            }).collect::<Vec<(String, String)>>();
+
+            sheet_ids.extend(current_sheet_ids);
         } else {
-            None
+            let (_, file_listing) = hub
+                .files()
+                .list()
+                .q(&format!("'{}' in parents", drive_folder_id))
+                .supports_all_drives(true)
+                .include_items_from_all_drives(true)
+                .page_size(1000)
+                .doit()
+                .await?;
+
+            let resp_next_page_token = file_listing.next_page_token;
+            if let Some(tok) = resp_next_page_token {
+                next_page_token = Some(tok);
+            } else {
+                next_page_token = None;
+            }
+
+            let f = file_listing.files.ok_or(Error::msg("no files found"))?;
+            let current_sheet_ids = f.into_iter().filter_map(|file| {
+                if file.mime_type == Some("application/vnd.google-apps.spreadsheet".to_string()) {
+                    Some((file.id.unwrap(), file.name.unwrap()))
+                } else {
+                    None
+                }
+            }).collect::<Vec<(String, String)>>();
+
+            sheet_ids.extend(current_sheet_ids);
         }
-    }).collect::<Vec<(String, String)>>();
+
+        if next_page_token.is_none() {
+            break;
+        }
+    }
     Ok(sheet_ids)
 }
 
