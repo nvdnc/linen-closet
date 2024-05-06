@@ -10,7 +10,7 @@ use futures_retry::{RetryPolicy, StreamRetryExt};
 
 
 use std::fs::File;
-use std::io::{Cursor};
+use std::io::Cursor;
 use anyhow::{Context, Error, Result};
 use aws_sdk_s3::config::Region;
 use aws_sdk_s3::primitives::ByteStream;
